@@ -25,6 +25,7 @@
 				"useSemanticElements": "off",
 				"useButtonType": "off",
 				"noRedundantRoles": "off",
+				"useValidAnchor": "off",
 				"useFocusableInteractive": "off",
 				"noLabelWithoutControl": "off"
 			},
@@ -32,6 +33,7 @@
 				"noDangerouslySetInnerHtml": "off"
 			},
 			"complexity": {
+				"noForEach": "off",
 				"noExcessiveCognitiveComplexity": "off",
 				"noBannedTypes": "off",
 				"noUselessStringConcat": "error",
