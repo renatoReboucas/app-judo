@@ -3,9 +3,9 @@ import Button from '@/Components/Button'
 import Divider from '@/Components/Divider'
 import Input from '@/Components/Input'
 import InputPassword from '@/Components/InputPassword'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { signIn } from 'next-auth/react'
 
 type User = {
   email: string
@@ -24,19 +24,11 @@ export default function Login() {
 
   async function signIn() {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: getValues('email'),
-        password: getValues('password'),
-      })
-      if (data.session) {
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token,
-        })
+      const email = getValues('email')
+      const password = getValues('password')
 
-        router.push('/home')
-        router.refresh()
-      }
+      // router.push('/home')
+      // router.refresh()
     } catch (err) {
       console.error(err)
     }
