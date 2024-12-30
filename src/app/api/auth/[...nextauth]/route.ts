@@ -3,6 +3,17 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string;
+      email?: string;
+      image?: string;
+    };
+  }
+}
+
 const nextAuthOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -14,7 +25,7 @@ const nextAuthOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         return {
-          id: 1,
+          id: "1",
           email: credentials.email,
           password: credentials.password,
           name: "Teste",
