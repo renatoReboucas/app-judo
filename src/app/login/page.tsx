@@ -1,11 +1,13 @@
 'use client'
-import Button from '@/Components/Button'
-import Divider from '@/Components/Divider'
-import Input from '@/Components/Input'
-import InputPassword from '@/Components/InputPassword'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
+import Link from 'next/link'
+
+import Button from '@/Components/Button'
+import Input from '@/Components/Input'
+import InputPassword from '@/Components/InputPassword'
 
 type User = {
   email: string
@@ -15,6 +17,7 @@ type User = {
 
 export default function Login() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const {
     register,
     formState: { errors },
@@ -22,30 +25,44 @@ export default function Login() {
     getValues,
   } = useForm<User>()
 
-  async function signIn() {
-    try {
-      const email = getValues('email')
-      const password = getValues('password')
-
-      // router.push('/home')
-      // router.refresh()
-    } catch (err) {
-      console.error(err)
+  async function handleSubmitLogin() {
+    const email = getValues('email')
+    const password = getValues('password')
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    })
+    if (result?.error) {
+      console.error('DEU RUIM!', result.error)
+      return
     }
+
+    // replace nao armazena histórico do navegador
+    router.replace('/home')
   }
+
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      router.replace('/home')
+    }
+  }, [status, session, router])
+
+  if (status === 'loading') {
+    return <div>Carregando...</div>
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div role="tablist" className="tabs tabs-bordered">
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Login"
-          defaultChecked
-        />
-        <div role="tabpanel" className="tab-content p-10 space-y-2">
-          <form onSubmit={handleSubmit(signIn)}>
+    <div className="min-h-screen bg-zinc-50 flex flex-col justify-center sm:py-12">
+      <div className="p-10 xs:p-0 mx-auto md:w-full md:max-w-md">
+        <h1 className="font-bold text-center text-2xl mb-5 text-zinc-950">
+          Judo
+        </h1>
+        <div className="bg-white shadow-xl w-full rounded-lg divide-y ">
+          <form
+            className="px-5 py-7"
+            onSubmit={handleSubmit(handleSubmitLogin)}
+          >
             <Input
               {...register('email', { required: 'E-mail é obrigatório' })}
               type="email"
@@ -59,8 +76,8 @@ export default function Login() {
               className="input-md"
               {...register('password', { required: 'Informe a senha' })}
             />
-            <Divider />
-            <div className="flex justify-end">
+
+            <div className="flex justify-end mt-6">
               <Button
                 type="submit"
                 className="btn-sm"
@@ -69,17 +86,27 @@ export default function Login() {
               />
             </div>
           </form>
-        </div>
-
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Sign-in"
-        />
-        <div role="tabpanel" className="tab-content p-10">
-          Tab content 2
+          <div className="py-5">
+            {/* <div className="grid grid-cols-2 gap-1"> */}
+            <div className="flex justify-center">
+              {/* <div className="text-center sm:text-left whitespace-nowrap">
+                <button className="transition duration-200 mx-5 px-5 py-4 cursor-pointer font-normal text-sm rounded-lg text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 ring-inset">
+                  <span className="inline-block ml-1">Forgot Password</span>
+                </button>
+              </div> */}
+              <div className="text-center sm:text-right  whitespace-nowrap">
+                <button className=" mx-5 px-5 py-4 ">
+                  <Link href="/signup">
+                    <Button
+                      label="Cadastrar"
+                      variant="ghost"
+                      className="text-zinc-950"
+                    />
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

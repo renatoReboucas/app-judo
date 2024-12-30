@@ -35,7 +35,7 @@ export default function InputPassword({
           autoComplete="off"
           name={name}
           type={showPassword ? 'text' : 'password'}
-          className="grow"
+          className="grow bg-white text-zinc-900"
           placeholder={placeholder}
         />
         <button onClick={togglePasswordVisibility} type="button">
