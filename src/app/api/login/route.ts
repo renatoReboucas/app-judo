@@ -2,11 +2,16 @@ import { prisma } from "@/db/prisma";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
+	const dados = await prisma.user.findMany();
+	return NextResponse.json(dados, { status: 200 });
+}
+
+export async function POST(request: NextRequest) {
 	const dados = {
-		email: "joao.silva@email.com",
-		senha: "senha123",
-		nome: "João",
-		sobrenome: "Silva",
+		email: "renato190698@gmail.com",
+		senha: "mudar123@@",
+		nome: "Renato",
+		sobrenome: "Rebouças",
 		telefone: "(11) 98765-4321",
 		dataNascimento: "2000-05-15T00:00:00.000Z",
 		nomeResponsavel: "Maria Silva",
@@ -20,9 +25,4 @@ export async function GET(request: NextRequest) {
 		data: dados,
 	});
 	return NextResponse.json(user, { status: 200 });
-}
-
-export async function POST(request: NextRequest) {
-	const data = await request.json();
-	return NextResponse.json({ received: data }, { status: 200 });
 }
