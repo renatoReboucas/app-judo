@@ -20,32 +20,32 @@ export default function Home() {
         <form action="#" method="POST">
           {/* Username Input */}
           <div className="mb-4">
-            <label htmlFor="username" className="block text-gray-600">
-              Username
+            <label htmlFor="email" className="block text-gray-600">
+              E-mail
             </label>
             <input
               type="text"
-              id="username"
-              name="username"
+              id="email"
+              name="email"
               className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
               autoComplete="off"
             />
           </div>
           {/* Password Input */}
           <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-600">
-              Password
+            <label htmlFor="senha" className="block text-gray-600">
+              Senha
             </label>
             <input
               type="password"
-              id="password"
-              name="password"
+              id="senha"
+              name="senha"
               className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
               autoComplete="off"
             />
           </div>
           {/* Remember Me Checkbox */}
-          <div className="mb-4 flex items-center">
+          {/* <div className="mb-4 flex items-center">
             <input
               type="checkbox"
               id="remember"
@@ -55,13 +55,13 @@ export default function Home() {
             <label htmlFor="remember" className="text-gray-600 ml-2">
               Remember Me
             </label>
-          </div>
+          </div> */}
           {/* Forgot Password Link */}
-          <div className="mb-6 text-blue-500">
+          {/* <div className="mb-6 text-blue-500">
             <a href="#" className="hover:underline">
               Forgot Password?
             </a>
-          </div>
+          </div> */}
           {/* Login Button */}
           <button
             type="submit"
@@ -73,7 +73,7 @@ export default function Home() {
         {/* Sign up Link */}
         <div className="mt-6 text-blue-500 text-center">
           <a href="#" className="hover:underline">
-            Sign up Here
+            Cadastre-se
           </a>
         </div>
       </div>
