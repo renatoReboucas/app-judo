@@ -1,28 +1,39 @@
-import { prisma } from "@/db/prisma";
-import { type NextRequest, NextResponse } from "next/server";
+import { prisma } from '@/db/prisma'
+import { compararSenha } from '@/utils/passwordUtils'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
-	const dados = await prisma.user.findMany();
-	return NextResponse.json(dados, { status: 200 });
-}
+export async function POST(request: Request) {
+  const data = await request.json()
+  const user = await prisma.user.findFirst({
+    where: { email: data.email },
+  })
+  if (!user) {
+    return NextResponse.json({ msg: 'Usuário não encontrado' }, { status: 404 })
+  }
+  const compar = await compararSenha(data.senha, user.senha)
+  if (!compar) {
+    return NextResponse.json({ msg: 'Senha incorreta' }, { status: 401 })
+  }
+  if (!user.ativo) {
+    return NextResponse.json({ msg: 'Usuário inativo' }, { status: 401 })
+  }
+  const response = NextResponse.json(
+    { msg: 'Login realizado com sucesso' },
+    { status: 200 }
+  )
+  response.cookies.set({
+    name: '@Auth:token',
+    value: JSON.stringify(user),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 24 * 30,
+  })
 
-export async function POST(request: NextRequest) {
-	const dados = {
-		email: "renato190698@gmail.com",
-		senha: "mudar123@@",
-		nome: "Renato",
-		sobrenome: "Rebouças",
-		telefone: "(11) 98765-4321",
-		dataNascimento: "2000-05-15T00:00:00.000Z",
-		nomeResponsavel: "Maria Silva",
-		telefoneResponsavel: "(11) 99876-5432",
-		sensei: false,
-		atleta: true,
-		faixa: "branca",
-		ativo: true,
-	};
-	const user = await prisma.user.create({
-		data: dados,
-	});
-	return NextResponse.json(user, { status: 200 });
+  return response
+
+  // return NextResponse.json(
+  //   { error: true, msg: 'Usuário já cadastrado' },
+  //   { status: 400 }
+  // )
 }
