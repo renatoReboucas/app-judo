@@ -14,11 +14,11 @@ export default function Select({
 }: SelectProps) {
   return (
     <>
-      <label className="form-control w-full ">
+      <label className="form-control w-full">
         <div className="label">
           <span className="label-text">{label}</span>
         </div>
-        <select className="select select-bordered">
+        <select className="select select-bordered w-full" {...rest}>
           {options.map(option => (
             <option key={option.value} value={option.value.toString()}>
               {option.label}
