@@ -22,9 +22,9 @@ export default function SignUp() {
       <form className="space-y-6">
         {/* Dados pessoais */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputLabel label="Nome*" name="nome" type="text" required />
+          <InputLabel label="Nome *" name="nome" type="text" required />
           <InputLabel
-            label="Sobrenome*"
+            label="Sobrenome *"
             name="sobrenome"
             type="text"
             required
@@ -78,13 +78,13 @@ export default function SignUp() {
               <label htmlFor="sensei">Sensei</label>
             </div>
 
-            <Select label="Selecione a cor da sua faixa" options={faixas} />
+            <Select label="Selecione a cor da sua faixa *" options={faixas} />
           </div>
         </div>
 
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md py-2 px-4 w-full"
+          className="bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-md py-2 px-4 w-full"
         >
           Cadastrar
         </button>
