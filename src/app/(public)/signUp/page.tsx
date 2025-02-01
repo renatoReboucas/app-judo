@@ -67,7 +67,7 @@ export default function SignUp() {
           <h2 className="text-lg font-medium text-zinc-900">
             Informações do Judô
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col space-y-4">
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -77,7 +77,6 @@ export default function SignUp() {
               />
               <label htmlFor="sensei">Sensei</label>
             </div>
-
             <Select label="Selecione a cor da sua faixa *" options={faixas} />
           </div>
         </div>
