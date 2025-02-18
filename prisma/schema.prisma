@@ -23,4 +23,8 @@ model User {
   createdAt           DateTime @default(now())
   ativo               Boolean  @default(true)
   updatedAt           DateTime @updatedAt
+  cpf                 String?
+  cpfResponsavel      String?
+  matriculaFederacao  String?
+  rg                  String?
 }

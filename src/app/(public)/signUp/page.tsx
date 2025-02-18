@@ -29,6 +29,8 @@ export default function SignUp() {
             type="text"
             required
           />
+          <InputLabel label="RG" name="rg" type="text" />
+          <InputLabel label="CPF" name="cpf" type="text" />
           <InputLabel label="Email *" name="email" type="email" required />
           <InputLabel label="Senha *" name="senha" type="password" required />
           <InputLabel label="Telefone *" name="telefone" type="tel" required />
@@ -37,6 +39,11 @@ export default function SignUp() {
             name="dataNascimento"
             type="date"
             required
+          />
+          <InputLabel
+            label="Matrícula Federação"
+            name="matriculaFederacao"
+            type="text"
           />
         </div>
 
@@ -52,6 +59,11 @@ export default function SignUp() {
             <InputLabel
               label="Nome do Responsável *"
               name="nomeResponsavel"
+              type="text"
+            />
+            <InputLabel
+              label="CPF do Responsável"
+              name="cpfResponsavel"
               type="text"
             />
             <InputLabel
