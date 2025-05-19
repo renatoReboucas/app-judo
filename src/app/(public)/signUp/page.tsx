@@ -14,6 +14,7 @@ const faixas = [
   { value: 'preta', label: 'Preta' },
 ]
 
+
 export default function SignUp() {
   return (
     <div className="p-8 max-w-2xl mx-auto text-zinc-950">
