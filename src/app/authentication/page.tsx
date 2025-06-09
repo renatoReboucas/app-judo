@@ -1,6 +1,7 @@
 // import { headers } from "next/headers";
 // import { redirect } from "next/navigation";
 
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // import { auth } from "@/lib/auth";
@@ -25,7 +26,9 @@ const AuthenticationPage = async () => {
           <LoginForm />
         </TabsContent>
         <TabsContent value="signup">
-          <SignUpFormFull />
+          <Card>
+            <SignUpFormFull />
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
