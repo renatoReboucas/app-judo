@@ -12,14 +12,6 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
   FormField,
@@ -36,12 +28,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import type { users } from "@/db/schema";
 import { authClient } from "@/lib/auth-client";
 
 const signUpSchema = z
   .object({
     name: z.string().min(1, "Nome é obrigatório"),
-    sobrenome: z.string().min(1, "Sobrenome é obrigatório"),
     email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
     password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
     telefone: z
@@ -187,25 +179,29 @@ const FormattedRGInput = React.forwardRef<
 });
 FormattedRGInput.displayName = "FormattedRGInput";
 
-export default function SignUpFormFull() {
+interface SignUpFormSession {
+  user?: typeof users.$inferSelect;
+}
+
+export default function SignUpFormFull({ user }: SignUpFormSession) {
   const router = useRouter();
+
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      name: "",
-      sobrenome: "",
-      email: "",
+      name: user?.name || "",
+      email: user?.email || "",
       password: "",
-      telefone: "",
-      dataNascimento: "",
-      nomeResponsavel: "",
-      telefoneResponsavel: "",
-      cpfResponsavel: "",
-      sensei: false,
-      atleta: true,
-      faixa: "",
-      rg: "",
-      matriculaFederacao: "",
+      telefone: user?.telefone || "",
+      dataNascimento: user?.dataNascimento || "",
+      nomeResponsavel: user?.nomeResponsavel || "",
+      telefoneResponsavel: user?.telefoneResponsavel || "",
+      cpfResponsavel: user?.cpfResponsavel || "",
+      sensei: user?.sensei || false,
+      atleta: user?.atleta || true,
+      faixa: user?.faixa || "",
+      rg: user?.rg || "",
+      matriculaFederacao: user?.matriculaFederacao || "",
     },
   });
 
@@ -252,7 +248,6 @@ export default function SignUpFormFull() {
         email: values.email,
         password: values.password,
         name: values.name,
-        sobrenome: values.sobrenome,
         telefone: values.telefone,
         dataNascimento: values.dataNascimento
           ? dayjs(values.dataNascimento).format("YYYY-MM-DD")
@@ -282,55 +277,73 @@ export default function SignUpFormFull() {
   };
 
   return (
-    <Card>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <CardHeader>
-            <CardTitle>Criar nova conta</CardTitle>
-            <CardDescription>Crie uma conta para continuar</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Seu nome" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4"
+        autoComplete="off"
+      >
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome</FormLabel>
+                <FormControl>
+                  <Input placeholder="Seu nome" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="sobrenome"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sobrenome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Seu sobrenome" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="seu@email.com" type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Senha</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Digite sua senha"
+                    type="password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="email"
-              render={({ field }) => (
+              name="telefone"
+              render={({ field: { onChange, value, ...rest } }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="seu@email.com"
-                      type="email"
-                      {...field}
+                    <FormattedPhoneInput
+                      placeholder="(11) 99999-9999"
+                      value={value}
+                      onChange={onChange}
+                      {...rest}
                     />
                   </FormControl>
                   <FormMessage />
@@ -340,14 +353,37 @@ export default function SignUpFormFull() {
 
             <FormField
               control={form.control}
-              name="password"
+              name="dataNascimento"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Senha</FormLabel>
+                  <FormLabel>Data de Nascimento</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="space-y-4 border-t pt-4">
+            <h3 className="text-muted-foreground text-sm font-medium">
+              Dados do Responsável{" "}
+              {!showResponsavelFields &&
+                "(campos desabilitados para maiores de 18 anos)"}
+              {showResponsavelFields && "(menor de 18 anos)"}
+            </h3>
+
+            <FormField
+              control={form.control}
+              name="nomeResponsavel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do Responsável</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Digite sua senha"
-                      type="password"
+                      placeholder="Nome do responsável"
+                      disabled={!showResponsavelFields}
                       {...field}
                     />
                   </FormControl>
@@ -359,13 +395,14 @@ export default function SignUpFormFull() {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="telefone"
+                name="telefoneResponsavel"
                 render={({ field: { onChange, value, ...rest } }) => (
                   <FormItem>
-                    <FormLabel>Telefone</FormLabel>
+                    <FormLabel>Telefone do Responsável</FormLabel>
                     <FormControl>
                       <FormattedPhoneInput
                         placeholder="(11) 99999-9999"
+                        disabled={!showResponsavelFields}
                         value={value}
                         onChange={onChange}
                         {...rest}
@@ -378,218 +415,153 @@ export default function SignUpFormFull() {
 
               <FormField
                 control={form.control}
-                name="dataNascimento"
-                render={({ field }) => (
+                name="cpfResponsavel"
+                render={({ field: { onChange, value, ...rest } }) => (
                   <FormItem>
-                    <FormLabel>Data de Nascimento</FormLabel>
+                    <FormLabel>CPF do Responsável</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="text-muted-foreground text-sm font-medium">
-                Dados do Responsável{" "}
-                {!showResponsavelFields &&
-                  "(campos desabilitados para maiores de 18 anos)"}
-                {showResponsavelFields && "(menor de 18 anos)"}
-              </h3>
-
-              <FormField
-                control={form.control}
-                name="nomeResponsavel"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome do Responsável</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Nome do responsável"
+                      <FormattedCPFInput
+                        placeholder="000.000.000-00"
                         disabled={!showResponsavelFields}
-                        {...field}
+                        value={value}
+                        onChange={onChange}
+                        {...rest}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="telefoneResponsavel"
-                  render={({ field: { onChange, value, ...rest } }) => (
-                    <FormItem>
-                      <FormLabel>Telefone do Responsável</FormLabel>
-                      <FormControl>
-                        <FormattedPhoneInput
-                          placeholder="(11) 99999-9999"
-                          disabled={!showResponsavelFields}
-                          value={value}
-                          onChange={onChange}
-                          {...rest}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="cpfResponsavel"
-                  render={({ field: { onChange, value, ...rest } }) => (
-                    <FormItem>
-                      <FormLabel>CPF do Responsável</FormLabel>
-                      <FormControl>
-                        <FormattedCPFInput
-                          placeholder="000.000.000-00"
-                          disabled={!showResponsavelFields}
-                          value={value}
-                          onChange={onChange}
-                          {...rest}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </div>
+          </div>
 
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="text-muted-foreground text-sm font-medium">
-                Informações de Treino
-              </h3>
+          <div className="space-y-4 border-t pt-4">
+            <h3 className="text-muted-foreground text-sm font-medium">
+              Informações de Treino
+            </h3>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="sensei"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                      <div className="space-y-0.5">
-                        <FormLabel>É Sensei?</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="atleta"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                      <div className="space-y-0.5">
-                        <FormLabel>É Atleta?</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="matriculaFederacao"
+                name="sensei"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Matricula Federação</FormLabel>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>É Sensei?</FormLabel>
+                    </div>
                     <FormControl>
-                      <Input placeholder="11111111" type="text" {...field} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-1">
-                  <FormField
-                    control={form.control}
-                    name="faixa"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel>Faixa</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          disabled={isSensei}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Selecione a faixa" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="branca">Branca</SelectItem>
-                            <SelectItem value="amarela">Amarela</SelectItem>
-                            <SelectItem value="laranja">Laranja</SelectItem>
-                            <SelectItem value="verde">Verde</SelectItem>
-                            <SelectItem value="azul">Azul</SelectItem>
-                            <SelectItem value="roxa">Roxa</SelectItem>
-                            <SelectItem value="marrom">Marrom</SelectItem>
-                            <SelectItem value="preta">Preta</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              <FormField
+                control={form.control}
+                name="atleta"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>É Atleta?</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
 
-                <div className="col-span-1">
-                  <FormField
-                    control={form.control}
-                    name="rg"
-                    render={({ field: { onChange, value, ...rest } }) => (
-                      <FormItem>
-                        <FormLabel>RG</FormLabel>
+            <FormField
+              control={form.control}
+              name="matriculaFederacao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Matricula Federação</FormLabel>
+                  <FormControl>
+                    <Input placeholder="11111111" type="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-1">
+                <FormField
+                  control={form.control}
+                  name="faixa"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Faixa</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={isSensei}
+                      >
                         <FormControl>
-                          <FormattedRGInput
-                            placeholder="00.000.000-0"
-                            value={value}
-                            onChange={onChange}
-                            {...rest}
-                          />
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione a faixa" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        <SelectContent>
+                          <SelectItem value="branca">Branca</SelectItem>
+                          <SelectItem value="amarela">Amarela</SelectItem>
+                          <SelectItem value="laranja">Laranja</SelectItem>
+                          <SelectItem value="verde">Verde</SelectItem>
+                          <SelectItem value="azul">Azul</SelectItem>
+                          <SelectItem value="roxa">Roxa</SelectItem>
+                          <SelectItem value="marrom">Marrom</SelectItem>
+                          <SelectItem value="preta">Preta</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-1">
+                <FormField
+                  control={form.control}
+                  name="rg"
+                  render={({ field: { onChange, value, ...rest } }) => (
+                    <FormItem>
+                      <FormLabel>RG</FormLabel>
+                      <FormControl>
+                        <FormattedRGInput
+                          placeholder="00.000.000-0"
+                          value={value}
+                          onChange={onChange}
+                          {...rest}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                "Criar conta"
-              )}
-            </Button>
-          </CardFooter>
-        </form>
-      </Form>
-    </Card>
+          </div>
+        </div>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            "Criar conta"
+          )}
+        </Button>
+      </form>
+    </Form>
   );
 }

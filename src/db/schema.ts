@@ -9,7 +9,6 @@ export const users = pgTable("users", {
     .notNull(),
   image: text("image"),
   name: text("name"),
-  sobrenome: text("sobrenome"),
   telefone: text("telefone"),
   dataNascimento: date("dataNascimento"),
   nomeResponsavel: text("nomeResponsavel"),
