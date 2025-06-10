@@ -1,7 +1,9 @@
 "use server";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { db } from "@/db";
+import { users } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { actionClient } from "@/lib/next-safe-action";
 
@@ -16,6 +18,20 @@ export const upsertUser = actionClient
     if (!session?.user) {
       throw new Error("Unauthorized");
     }
+    console.log(parsedInput);
 
-    await db;
+    await db
+      .insert(users)
+      .values({
+        ...parsedInput,
+        id: session.user.id,
+      })
+      .onConflictDoUpdate({
+        target: [users.id],
+        set: {
+          ...parsedInput,
+        },
+      });
+
+    redirect("/dashboard");
   });

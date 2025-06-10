@@ -1,15 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import dayjs from "dayjs";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAction } from "next-safe-action/hooks";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { upsertUser } from "@/actions/upsert-user";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -29,13 +30,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { users } from "@/db/schema";
-import { authClient } from "@/lib/auth-client";
 
 const signUpSchema = z
   .object({
     name: z.string().min(1, "Nome é obrigatório"),
     email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
-    password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
     telefone: z
       .string()
       .min(1, "Telefone é obrigatório")
@@ -105,8 +104,6 @@ const signUpSchema = z
       path: ["nomeResponsavel"],
     },
   );
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
 
 interface FormattedInputProps {
   value?: string;
@@ -190,15 +187,14 @@ interface SignUpFormSession {
   user?: typeof users.$inferSelect;
 }
 
-export default function SignUpFormFull({ user }: SignUpFormSession) {
+export default function SignUpFormUser({ user }: SignUpFormSession) {
   const router = useRouter();
 
-  const form = useForm<SignUpFormData>({
+  const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: user?.name || "",
       email: user?.email || "",
-      password: "",
       telefone: user?.telefone || "",
       cpf: user?.cpf || "",
       dataNascimento: user?.dataNascimento || "",
@@ -250,38 +246,17 @@ export default function SignUpFormFull({ user }: SignUpFormSession) {
 
   const showResponsavelFields = isMinor(dataNascimento);
 
-  const onSubmit = async (values: SignUpFormData) => {
-    await authClient.signUp.email(
-      {
-        email: values.email,
-        password: values.password,
-        name: values.name,
-        telefone: values.telefone,
-        dataNascimento: values.dataNascimento
-          ? dayjs(values.dataNascimento).format("YYYY-MM-DD")
-          : undefined,
-        sensei: values.sensei,
-        atleta: values.atleta,
-        faixa: values.faixa,
-        rg: values.rg,
-        matriculaFederacao: values.matriculaFederacao,
-        nomeResponsavel: values?.nomeResponsavel || null,
-        telefoneResponsavel: values?.telefoneResponsavel || null,
-        cpfResponsavel: values?.cpfResponsavel || null,
-      } as SignUpFormData,
-      {
-        onSuccess: () => {
-          router.push("/dashboard");
-        },
-        onError: (ctx) => {
-          if (ctx.error.code === "USER_ALREADY_EXISTS") {
-            toast.error("E-mail já cadastrado.");
-            return;
-          }
-          toast.error("Erro ao criar conta.");
-        },
-      },
-    );
+  const upsertUserAction = useAction(upsertUser, {
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar cadastro.");
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
+    upsertUserAction.execute({ ...values, id: user?.id });
   };
 
   return (
@@ -314,25 +289,6 @@ export default function SignUpFormFull({ user }: SignUpFormSession) {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input placeholder="seu@email.com" type="email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Senha</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Digite sua senha"
-                    type="password"
-                    autoComplete="new-password"
-                    {...field}
-                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -580,12 +536,12 @@ export default function SignUpFormFull({ user }: SignUpFormSession) {
         <Button
           type="submit"
           className="w-full"
-          disabled={form.formState.isSubmitting}
+          disabled={upsertUserAction.isPending}
         >
-          {form.formState.isSubmitting ? (
+          {upsertUserAction.isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            "Criar conta"
+            "Atualizar cadastro"
           )}
         </Button>
       </form>

@@ -1,9 +1,13 @@
 import { z } from "zod";
 
 const upsertUserSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
-  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+  password: z
+    .string()
+    .min(6, "Senha deve ter pelo menos 6 caracteres")
+    .optional(),
   telefone: z
     .string()
     .min(1, "Telefone é obrigatório")
@@ -20,6 +24,13 @@ const upsertUserSchema = z.object({
   sensei: z.boolean().optional(),
   atleta: z.boolean().optional(),
   faixa: z.string().min(1, "Faixa é obrigatória"),
+  cpf: z
+    .string()
+    .min(1, "CPF é obrigatório")
+    .refine((value) => {
+      const numbers = value.replace(/\D/g, "");
+      return !value || numbers.length > 0;
+    }, "CPF é obrigatório"),
   matriculaFederacao: z.string().optional(),
   rg: z
     .string()
@@ -32,4 +43,5 @@ const upsertUserSchema = z.object({
     }, "RG é obrigatório"),
 });
 
-export type upsertUserSchema = z.infer<typeof upsertUserSchema>;
+export type UpsertUserSchema = z.infer<typeof upsertUserSchema>;
+export { upsertUserSchema };

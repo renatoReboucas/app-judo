@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 
-import SignUpFormFull from "@/app/authentication/_components/sign-up-form-full";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { users } from "@/db/schema";
 import { auth } from "@/lib/auth";
+
+import SignUpFormUser from "./_components/form";
 
 const UserFormPage = async () => {
   const session = await auth.api.getSession({
@@ -25,7 +26,7 @@ const UserFormPage = async () => {
           </DialogDescription>
         </DialogHeader>
         {session?.user && (
-          <SignUpFormFull user={session.user as typeof users.$inferSelect} />
+          <SignUpFormUser user={session.user as typeof users.$inferSelect} />
         )}
       </DialogContent>
     </Dialog>
