@@ -56,7 +56,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b p-4">
-        <Image src="/logo.svg" alt="Doutor Agenda" width={136} height={28} />
+        <Image src="/vercel.svg" alt="judo logo" width={136} height={28} />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
